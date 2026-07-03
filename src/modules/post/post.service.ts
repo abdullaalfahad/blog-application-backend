@@ -4,10 +4,25 @@ import { prisma } from '../../lib/prisma';
 const getAllPosts = async (params: { search: string | undefined }) => {
   const result = await prisma.post.findMany({
     where: {
-      title: {
-        contains: params.search as string,
-        mode: 'insensitive',
-      },
+      OR: [
+        {
+          title: {
+            contains: params.search as string,
+            mode: 'insensitive',
+          },
+        },
+        {
+          content: {
+            contains: params.search as string,
+            mode: 'insensitive',
+          },
+        },
+        {
+          tags: {
+            has: params.search as string,
+          },
+        },
+      ],
     },
   });
   return result;
