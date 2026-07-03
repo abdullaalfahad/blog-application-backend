@@ -3,8 +3,13 @@ import { postService } from './post.service';
 
 const getAllPosts = async (req: Request, res: Response) => {
   try {
-    const { search } = req.query;
-    const posts = await postService.getAllPosts({ search: search as string | undefined });
+    const { search, tags } = req.query;
+    const tagsArray = tags ? (tags as string)?.split(',') : [];
+    console.log('Tags Array:', tagsArray); // Debugging line
+    const posts = await postService.getAllPosts({
+      search: search as string | undefined,
+      tags: tagsArray,
+    });
     res.status(200).json({ success: true, data: posts });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to retrieve posts', details: error });
