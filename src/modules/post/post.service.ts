@@ -2,7 +2,11 @@ import type { Post } from '../../../generated/prisma/client';
 import type { PostWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
 
-const getAllPosts = async (params: { search: string | undefined; tags: string[] }) => {
+const getAllPosts = async (params: {
+  search: string | undefined;
+  tags: string[];
+  isFeatured: boolean | undefined;
+}) => {
   const andConditions: PostWhereInput[] = [];
 
   if (params.search) {
@@ -34,6 +38,12 @@ const getAllPosts = async (params: { search: string | undefined; tags: string[] 
       tags: {
         hasEvery: params.tags as string[],
       },
+    });
+  }
+
+  if (typeof params.isFeatured === 'boolean') {
+    andConditions.push({
+      isFeatured: params.isFeatured,
     });
   }
 

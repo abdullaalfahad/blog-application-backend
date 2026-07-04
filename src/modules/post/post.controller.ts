@@ -5,10 +5,18 @@ const getAllPosts = async (req: Request, res: Response) => {
   try {
     const { search, tags } = req.query;
     const tagsArray = tags ? (tags as string)?.split(',') : [];
-    console.log('Tags Array:', tagsArray); // Debugging line
+    const isFeatured = req.query.isFeatured
+      ? req.query.isFeatured === 'true'
+        ? true
+        : req.query.isFeatured === 'false'
+          ? false
+          : undefined
+      : undefined;
+
     const posts = await postService.getAllPosts({
       search: search as string | undefined,
       tags: tagsArray,
+      isFeatured,
     });
     res.status(200).json({ success: true, data: posts });
   } catch (error) {
