@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
+import type { PostStatus } from '../../../generated/prisma/client';
 import { postService } from './post.service';
 
 const getAllPosts = async (req: Request, res: Response) => {
   try {
-    const { search, tags } = req.query;
+    const { search, tags, status } = req.query;
     const tagsArray = tags ? (tags as string)?.split(',') : [];
     const isFeatured = req.query.isFeatured
       ? req.query.isFeatured === 'true'
@@ -17,6 +18,7 @@ const getAllPosts = async (req: Request, res: Response) => {
       search: search as string | undefined,
       tags: tagsArray,
       isFeatured,
+      status: status as PostStatus | undefined,
     });
     res.status(200).json({ success: true, data: posts });
   } catch (error) {
