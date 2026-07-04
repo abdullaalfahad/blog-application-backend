@@ -4,7 +4,7 @@ import { postService } from './post.service';
 
 const getAllPosts = async (req: Request, res: Response) => {
   try {
-    const { search, tags, status } = req.query;
+    const { search, tags, status, authorId } = req.query;
     const tagsArray = tags ? (tags as string)?.split(',') : [];
     const isFeatured = req.query.isFeatured
       ? req.query.isFeatured === 'true'
@@ -19,6 +19,7 @@ const getAllPosts = async (req: Request, res: Response) => {
       tags: tagsArray,
       isFeatured,
       status: status as PostStatus | undefined,
+      authorId: authorId as string | undefined,
     });
     res.status(200).json({ success: true, data: posts });
   } catch (error) {

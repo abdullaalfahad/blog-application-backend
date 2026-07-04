@@ -7,6 +7,7 @@ const getAllPosts = async (params: {
   tags: string[];
   isFeatured: boolean | undefined;
   status: PostStatus | undefined;
+  authorId: string | undefined;
 }) => {
   const andConditions: PostWhereInput[] = [];
 
@@ -51,6 +52,12 @@ const getAllPosts = async (params: {
   if (params.status) {
     andConditions.push({
       status: params.status,
+    });
+  }
+
+  if (params.authorId) {
+    andConditions.push({
+      authorId: params.authorId,
     });
   }
 
