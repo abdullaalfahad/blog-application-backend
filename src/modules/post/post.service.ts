@@ -141,6 +141,11 @@ const getPostById = async (postId: string) => {
             },
           },
         },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
     });
 
