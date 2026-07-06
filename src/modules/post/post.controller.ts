@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import type { PostStatus } from '../../../generated/prisma/client';
+import paginationSortingHelper from '../../helpers/paginationSortingHelper';
 import { postService } from './post.service';
 
 const getAllPosts = async (req: Request, res: Response) => {
@@ -14,14 +15,21 @@ const getAllPosts = async (req: Request, res: Response) => {
           : undefined
       : undefined;
 
+    const { page, limit, skip, sortBy, sortOrder } = paginationSortingHelper(req.query as any);
+
     const posts = await postService.getAllPosts({
       search: search as string | undefined,
       tags: tagsArray,
       isFeatured,
       status: status as PostStatus | undefined,
       authorId: authorId as string | undefined,
+      page: page,
+      limit: limit,
+      skip: skip,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
     });
-    res.status(200).json({ success: true, data: posts });
+    res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to retrieve posts', details: error });
   }

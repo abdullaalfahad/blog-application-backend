@@ -8,6 +8,11 @@ const getAllPosts = async (params: {
   isFeatured: boolean | undefined;
   status: PostStatus | undefined;
   authorId: string | undefined;
+  page: number;
+  limit: number;
+  skip: number;
+  sortBy: string;
+  sortOrder: string;
 }) => {
   const andConditions: PostWhereInput[] = [];
 
@@ -62,11 +67,31 @@ const getAllPosts = async (params: {
   }
 
   const result = await prisma.post.findMany({
+    take: params.limit,
+    skip: params.skip,
+    where: {
+      AND: andConditions,
+    },
+    orderBy: {
+      [params.sortBy]: params.sortOrder,
+    },
+  });
+
+  const total = await prisma.post.count({
     where: {
       AND: andConditions,
     },
   });
-  return result;
+
+  return {
+    data: result,
+    pagination: {
+      total,
+      page: params.page,
+      limit: params.limit,
+      totalPages: Math.ceil(total / params.limit),
+    },
+  };
 };
 
 const createPost = async (
