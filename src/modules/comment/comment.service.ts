@@ -1,3 +1,4 @@
+import type { CommentStatus } from '../../../generated/prisma/client';
 import { prisma } from '../../lib/prisma';
 
 const getCommentsById = async (id: string) => {
@@ -68,9 +69,36 @@ const deleteComment = async (id: string, authorId: string) => {
   return deletedComment;
 };
 
+const updateComment = async (
+  id: string,
+  authorId: string,
+  data: { content: string; status?: CommentStatus }
+) => {
+  const comment = await prisma.comment.findFirst({
+    where: {
+      id,
+      authorId,
+    },
+  });
+
+  if (!comment) {
+    throw new Error('Comment not found or you are not the author');
+  }
+
+  const updatedComment = await prisma.comment.update({
+    where: {
+      id,
+    },
+    data,
+  });
+
+  return updatedComment;
+};
+
 export const commentService = {
   createComment,
   getCommentsById,
   getCommentsByAuthorId,
   deleteComment,
+  updateComment,
 };
