@@ -55,10 +55,23 @@ const updateComment = async (req: Request, res: Response) => {
   }
 };
 
+const moderateComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const result = await commentService.moderateComment(id as string, status);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Comment moderation failed';
+    res.status(400).json({ success: false, message: errorMessage, details: error });
+  }
+};
+
 export const commentController = {
   getCommentsById,
   getCommentsByAuthorId,
   createComment,
   deleteComment,
   updateComment,
+  moderateComment,
 };

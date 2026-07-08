@@ -14,4 +14,6 @@ router.patch('/:id', auth(UserRole.ADMIN, UserRole.USER), commentController.upda
 
 router.post('/', auth(UserRole.ADMIN, UserRole.USER), commentController.createComment);
 
+router.patch('/:id/moderate', auth(UserRole.ADMIN), commentController.moderateComment);
+
 export const commentRouter: Router = router;
