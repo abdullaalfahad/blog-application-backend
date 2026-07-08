@@ -46,6 +46,18 @@ const getPostById = async (req: Request, res: Response) => {
   }
 };
 
+const getMyPosts = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    const result = await postService.getMyPosts(user?.id as string);
+    res.status(200).json(result);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Post not found';
+    res.status(404).json({ success: false, message: errorMessage, details: error });
+  }
+};
+
 const createPost = async (req: Request, res: Response) => {
   try {
     const user = req.user;
@@ -63,4 +75,5 @@ export const postController = {
   getAllPosts,
   getPostById,
   createPost,
+  getMyPosts,
 };

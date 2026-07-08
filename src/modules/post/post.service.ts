@@ -162,6 +162,33 @@ const getPostById = async (postId: string) => {
   return result;
 };
 
+const getMyPosts = async (authorId: string) => {
+  await prisma.user.findUniqueOrThrow({
+    where: {
+      id: authorId,
+      status: 'ACTIVE',
+    },
+  });
+
+  const result = await prisma.post.findMany({
+    where: {
+      authorId,
+    },
+    include: {
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return result;
+};
+
 const createPost = async (
   data: Omit<Post, 'id' | 'createdAt' | 'updatedAt' | 'authorId'>,
   userId: string
@@ -180,4 +207,5 @@ export const postService = {
   getAllPosts,
   getPostById,
   createPost,
+  getMyPosts,
 };
