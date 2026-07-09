@@ -1,6 +1,7 @@
 import { CommentStatus, type Post, type PostStatus } from '../../../generated/prisma/client';
 import type { PostWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
+import { UserRole } from '../../middlewares/auth';
 
 const getAllPosts = async (params: {
   search: string | undefined;
@@ -259,6 +260,56 @@ const deletePost = async (postId: string, userId: string, isAdmin: boolean) => {
   return result;
 };
 
+const getStats = async (isAdmin: boolean) => {
+  if (!isAdmin) {
+    throw new Error('You are not authorized to access this resource');
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const [
+      totalPosts,
+      publishedPosts,
+      draftPosts,
+      archivedPosts,
+      totalViews,
+      totalComments,
+      approvedComments,
+      rejectedComments,
+      totalUsers,
+      users,
+      admin,
+    ] = await Promise.all([
+      tx.post.count(),
+      tx.post.count({ where: { status: 'PUBLISHED' } }),
+      tx.post.count({ where: { status: 'DRAFT' } }),
+      tx.post.count({ where: { status: 'ARCHIVED' } }),
+      tx.post.aggregate({ _sum: { views: true } }),
+      tx.comment.count(),
+      tx.comment.count({ where: { status: 'APPROVED' } }),
+      tx.comment.count({ where: { status: 'REJECTED' } }),
+      tx.user.count(),
+      tx.user.count({ where: { role: UserRole.USER } }),
+      tx.user.count({ where: { role: UserRole.ADMIN } }),
+    ]);
+
+    return {
+      totalPosts,
+      publishedPosts,
+      draftPosts,
+      archivedPosts,
+      totalViews: totalViews._sum.views || 0,
+      totalComments,
+      approvedComments,
+      rejectedComments,
+      totalUsers,
+      users,
+      admin,
+    };
+  });
+
+  return result;
+};
+
 export const postService = {
   getAllPosts,
   getPostById,
@@ -266,4 +317,5 @@ export const postService = {
   getMyPosts,
   updatePost,
   deletePost,
+  getStats,
 };
