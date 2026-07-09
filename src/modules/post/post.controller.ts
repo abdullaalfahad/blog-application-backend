@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import type { PostStatus } from '../../../generated/prisma/client';
 import paginationSortingHelper from '../../helpers/paginationSortingHelper';
+import { UserRole } from '../../middlewares/auth';
 import { postService } from './post.service';
 
 const getAllPosts = async (req: Request, res: Response) => {
@@ -71,9 +72,29 @@ const createPost = async (req: Request, res: Response) => {
   }
 };
 
+const updatePost = async (req: Request, res: Response) => {
+  try {
+    const { postId } = req.params;
+    const user = req.user;
+    const isAdmin = user?.role === UserRole.ADMIN;
+
+    const result = await postService.updatePost(
+      postId as string,
+      req.body,
+      user?.id as string,
+      isAdmin
+    );
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Post update failed';
+    res.status(404).json({ success: false, message: errorMessage, details: error });
+  }
+};
+
 export const postController = {
   getAllPosts,
   getPostById,
   createPost,
   getMyPosts,
+  updatePost,
 };
