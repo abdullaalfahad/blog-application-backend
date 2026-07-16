@@ -14,7 +14,7 @@ app.use(
   })
 );
 
-app.use('/api/auth/*splat', toNodeHandler(auth));
+app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use(express.json());
 app.use('/api/posts', postRouter);
